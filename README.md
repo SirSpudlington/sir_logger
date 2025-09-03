@@ -1,4 +1,4 @@
-# sir_logger
+# sir_logger [![](https://img.shields.io/crates/v/sir_logger.svg)](https://crates.io/crates/sir_logger) [![](https://docs.rs/sir_logger/badge.svg)](https://docs.rs/sir_logger)
 This is a simple crate that I tend to use in a lot of projects. I used to just copy the crate between all of my projects and after the 8th time, I have decided to just open-source the thing.
 
 This is just a somewhat personalized version of [env_logger](https://crates.io/crates/env_logger), [env_logger](https://crates.io/crates/env_logger) is better in almost every way.
