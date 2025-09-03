@@ -26,9 +26,11 @@
 use fern::colors::{Color, ColoredLevelConfig};
 use log::{LevelFilter, debug, error};
 use std::cell::OnceCell;
-use std::panic;
 use std::path::Path;
 use std::time::SystemTime;
+
+#[cfg(not(feature = "no-panic-handler"))]
+use std::panic;
 
 const PREVENT_MULTI_INIT: OnceCell<()> = OnceCell::new();
 
@@ -164,6 +166,7 @@ pub fn setup<const S: usize, const H: usize>(
 
     // Set a nicer looking panic hook, so incase there ever is a panic, it'll
     // be handled nicer.
+    #[cfg(not(feature = "no-panic-handler"))]
     panic::set_hook(Box::new(|info| {
         // Print debug info and where the panic happened.
         if let Some(location) = info.location() {
