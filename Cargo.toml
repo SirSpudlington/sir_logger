@@ -1,6 +1,6 @@
 [package]
 name = "sir_logger"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "LGPL-2.1"
 keywords = ["logging", "util"]
@@ -8,10 +8,6 @@ homepage = "https://github.com/SirSpudlington/sir_logger"
 repository = "https://github.com/SirSpudlington/sir_logger"
 description = "A simple logging library similar to env_logger"
 readme = "README.md"
-
-exclude = [
-    "images/*",
-]
 
 [dependencies]
 fern = { version = "^0.6", features = ["colored"] }
