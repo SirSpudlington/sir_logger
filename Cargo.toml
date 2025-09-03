@@ -9,6 +9,9 @@ repository = "https://github.com/SirSpudlington/sir_logger"
 description = "A simple logging library similar to env_logger"
 readme = "README.md"
 
+exclude = [
+    "images/*",
+]
 
 [dependencies]
 fern = { version = "^0.6", features = ["colored"] }
