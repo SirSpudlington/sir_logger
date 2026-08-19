@@ -1,51 +1,48 @@
-# sir_logger [![](https://img.shields.io/crates/v/sir_logger.svg)](https://crates.io/crates/sir_logger) [![](https://docs.rs/sir_logger/badge.svg)](https://docs.rs/sir_logger)
+# sir_logger
+
+[![crates.io](https://img.shields.io/crates/v/sir_logger.svg)](https://crates.io/crates/sir_logger) [![docs.rs](https://docs.rs/sir_logger/badge.svg)](https://docs.rs/sir_logger)
+
 This is a simple crate that I tend to use in a lot of projects. I used to just copy the crate between all of my projects and after the 8th time, I have decided to just open-source the thing.
 
 This is just a somewhat personalized version of [env_logger](https://crates.io/crates/env_logger), [env_logger](https://crates.io/crates/env_logger) is better in almost every way.
 
-**Note**: 
-- This library will only give `warn` and `error` logs for other libraries unless set to `trace`.
+## Note
+
+- This library will only give `warn` and `error` logs for other libraries that are not internal unless set to `trace`.
 - If using the log file, this library **WILL** include the ansi coloring in the log file.
 - This is not a serious project, please don't use it in production without checking it over.
 
-## Features
+## Usage
 
-- Panic handler to include panics in the logs (disable with the `no-panic-handler` feature)
-- Fetching logging level from either the environment or the program itself.
-- Log file support
-
-## Example
+The logger will default to using the `RUST_LOG` env var or `INFO` if no `log_level` is set.
 
 ```rust
-fn main() {
-    sir_logger::setup(
-        // The log filter override, if `Some(value)`,
-        // the logger will use that value as the log level displayed.
-        // If `None`, then the logger will try to find the value in
-        // `RUST_LOG`, and then it'll default to `INFO`
-        Some(LevelFilter::Trace),
+sir_logger::setup!()
+    // Configure the logger to use stdout and stderr
+    .use_stdout()
+    .use_stderr()
 
-        // The names of crates that should be disabled for the logger
-        ["very_verbose_crate"],
+    // Also output to "./log.txt"
+    .log_file("log.txt")
+    .unwrap()
 
-        // The names of libraries that should be at the same log
-        // level as the main program.
-        ["super_important_crate"],
+    // Make tracing shut up
+    .suppress("tracing")
 
-        // A path to a file to store logs, or `None`
-        Some("path/to/log.txt"),
+    // Set `other_important_library` log level to the same as this library
+    .internal("other_important_library")
 
-        // The name of this executable, this'll help the library
-        // set the correct log level for all crates.
-        env!("CARGO_PKG_NAME")
-    );
-}
+    // Finally setup the logger
+    .setup()
+    .unwrap();
 ```
 
 ## Screenshots
 
 ### General use
+
 ![general use image](images/1.png "General messages")
 
 ### Panic support
+
 ![panic handling image](images/2.png "Panic handling")

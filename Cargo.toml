@@ -1,6 +1,6 @@
 [package]
 name = "sir_logger"
-version = "0.1.2"
+version = "0.2.0"
 edition = "2021"
 license = "LGPL-2.1"
 keywords = ["logging", "util"]
@@ -14,6 +14,3 @@ fern = { version = "^0.6", features = ["colored"] }
 humantime = "^2.1.0"
 log = "^0.4.0"
 tracing = { version = "^0.1", features = ["log"] }
-
-[features]
-no-panic-handler = []
