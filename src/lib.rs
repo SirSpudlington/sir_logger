@@ -35,11 +35,11 @@ static PREVENT_MULTI_INIT: OnceLock<()> = OnceLock::new();
 #[macro_export]
 macro_rules! setup {
     () => {
-        SirLoggerBuilder::with_crate_root(env!("CARGO_PKG_NAME"))
+        sir_logger::SirLoggerBuilder::with_crate_root(env!("CARGO_PKG_NAME"))
     };
 
     ($root: literal) => {
-        SirLoggerBuilder::with_crate_root($root)
+        sir_logger::SirLoggerBuilder::with_crate_root($root)
     };
 }
 
@@ -68,19 +68,19 @@ impl SirLoggerBuilder {
     }
 
     /// Output logs to stderr
-    pub fn use_stderr(&mut self) -> &mut Self {
+    pub fn use_stderr(mut self) -> Self {
         self.chains.push(std::io::stderr().into());
         self
     }
 
     /// Output logs to stdout
-    pub fn use_stdout(&mut self) -> &mut Self {
+    pub fn use_stdout(mut self) -> Self {
         self.chains.push(std::io::stdout().into());
         self
     }
 
     /// Set a log file to output to
-    pub fn log_file(&mut self, log_file: impl AsRef<Path>) -> io::Result<&mut Self> {
+    pub fn log_file(mut self, log_file: impl AsRef<Path>) -> io::Result<Self> {
         self.chains.push(fern::log_file(log_file.as_ref())?.into());
         Ok(self)
     }
@@ -88,20 +88,20 @@ impl SirLoggerBuilder {
     /// Completely disable the panic handler
     /// 
     /// Useful if you are using a different panic handler
-    pub fn no_panic_handler(&mut self) -> &mut Self {
+    pub fn no_panic_handler(mut self) -> Self {
         self.handle_panics = false;
         self
     }
 
     /// Override whatever is in the `RUST_LOG` env var and
     /// set the log level for internal crates to `level`
-    pub fn log_level(&mut self, level: log::LevelFilter) -> &mut Self {
+    pub fn log_level(mut self, level: log::LevelFilter) -> Self {
         self.level_override = Some(level);
         self
     }
     
     /// Completely disable logs for certain libraries
-    pub fn suppress(&mut self, suppress: impl IntoIterator<Item = impl Into<Cow<'static, str>>>) -> &mut Self {
+    pub fn suppress(mut self, suppress: impl IntoIterator<Item = impl Into<Cow<'static, str>>>) -> Self {
         self.suppress.extend(suppress.into_iter().map(Into::into));
         self
     }
@@ -110,13 +110,13 @@ impl SirLoggerBuilder {
     /// level as the root package.
     /// 
     /// Useful if you are using workspaces.
-    pub fn internal(&mut self, internal: impl IntoIterator<Item = impl Into<Cow<'static, str>>>) -> &mut Self {
+    pub fn internal(mut self, internal: impl IntoIterator<Item = impl Into<Cow<'static, str>>>) -> Self {
         self.internal.extend(internal.into_iter().map(Into::into));
         self
     }
     
     /// Add a custom fern output to the logger
-    pub fn custom_output(&mut self, output: impl Into<fern::Output>) -> &mut Self {
+    pub fn custom_output(mut self, output: impl Into<fern::Output>) -> Self {
         self.chains.push(output.into());
         self
     }
@@ -258,12 +258,13 @@ impl SirLoggerBuilder {
 /// ## Example
 /// 
 /// ```rust
+/// #[allow(deprecated)]
 /// sir_logger::setup(
 ///     // The log filter override, if `Some(value)`,
 ///     // the logger will use that value as the log level displayed.
 ///     // If `None`, then the logger will try to find the value in
 ///     // `RUST_LOG`, and then it'll default to `INFO`
-///     Some(LevelFilter::Trace),
+///     Some(log::LevelFilter::Trace),
 /// 
 ///         // The names of crates that should be disabled for the logger
 ///         ["very_verbose_crate"],
@@ -273,7 +274,7 @@ impl SirLoggerBuilder {
 ///         ["super_important_crate"],
 /// 
 ///         // A path to a file to store logs, or `None`
-///         Some("path/to/log.txt"),
+///         Some(&"log.txt"),
 /// 
 ///         // The name of this executable, this'll help the library
 ///         // set the correct log level for all crates.
@@ -289,18 +290,17 @@ pub fn setup<const S: usize, const H: usize>(
     log_file: Option<&dyn AsRef<Path>>,
     root: &'static str,
 ) {
-    let mut out = SirLoggerBuilder::with_crate_root(root);
-    out.use_stdout();
-
-    out.suppress(suppress);
-    out.internal(high_priority);
+    let mut out = SirLoggerBuilder::with_crate_root(root)
+        .use_stdout()
+        .suppress(suppress)
+        .internal(high_priority);
 
     if let Some(over) = level_override {
-        out.log_level(over);
+        out = out.log_level(over);
     }
 
     if let Some(file) = log_file {
-        out.log_file(file).unwrap();
+        out = out.log_file(file.as_ref()).unwrap();
     }
 
     out.setup().unwrap();

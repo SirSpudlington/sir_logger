@@ -27,10 +27,10 @@ sir_logger::setup!()
     .unwrap()
 
     // Make tracing shut up
-    .suppress("tracing")
+    .suppress(["tracing"])
 
-    // Set `other_important_library` log level to the same as this library
-    .internal("other_important_library")
+    // Set the log level for `important_library` and `other_important_library` to the same as this library
+    .internal(["important_library", "other_important_library"])
 
     // Finally setup the logger
     .setup()
